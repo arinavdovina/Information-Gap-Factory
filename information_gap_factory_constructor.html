@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Information Gap Factory</title>
+<style>
+:root{
+  --bg:#eef5ff;
+  --paper:#ffffff;
+  --ink:#172033;
+  --muted:#718099;
+  --line:#d9e3f0;
+  --blue:#356df3;
+  --navy:#172033;
+  --cyan:#8ee7f0;
+  --mint:#bdf3d0;
+  --peach:#ffd8bf;
+  --yellow:#ffe88c;
+  --lav:#d9d1ff;
+  --pink:#ffd2e5;
+  --shadow:0 18px 50px rgba(42,67,110,.10);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color:var(--ink);
+  background:
+    linear-gradient(180deg,#edf5ff 0%,#f8fbff 38%,#f5f7fb 100%);
+}
+.shell{
+  max-width:1240px;
+  margin:0 auto;
+  padding:28px 22px 56px;
+}
+.hero{
+  background:var(--navy);
+  color:#fff;
+  border-radius:30px;
+  padding:30px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.hero:before,.hero:after{
+  content:"";
+  position:absolute;
+  border-radius:999px;
+  filter:blur(2px);
+  opacity:.95;
+}
+.hero:before{
+  width:220px;height:220px;
+  background:#426ef9;
+  right:-60px;top:-70px;
+}
+.hero:after{
+  width:150px;height:150px;
+  background:#7ce3d4;
+  right:105px;bottom:-95px;
+}
+.hero-grid{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 340px;
+  gap:24px;
+  align-items:end;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 10px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.hero h1{
+  margin:14px 0 12px;
+  font-size:clamp(38px,5.2vw,68px);
+  line-height:.92;
+  letter-spacing:-.05em;
+  max-width:760px;
+}
+.hero p{
+  margin:0;
+  max-width:760px;
+  color:#c9d2e4;
+  font-size:16px;
+  line-height:1.55;
+}
+.hero-card{
+  background:#fff;
+  color:var(--ink);
+  border-radius:22px;
+  padding:18px;
+  position:relative;
+  z-index:3;
+}
+.hero-card b{
+  display:block;
+  font-size:13px;
+  margin-bottom:10px;
+}
+.duo{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.duo div{
+  border-radius:16px;
+  padding:14px;
+  min-height:106px;
+}
+.a{background:var(--cyan)}
+.b{background:var(--yellow)}
+.duo strong{
+  display:block;
+  font-size:24px;
+  margin-bottom:6px;
+}
+.duo span{
+  font-size:12px;
+  line-height:1.35;
+  color:#44506a;
+}
+.arrow{
+  text-align:center;
+  font-size:12px;
+  font-weight:900;
+  margin-top:10px;
+  color:#66718a;
+}
+.scenarios{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:10px;
+  margin:20px 0;
+}
+.scenario{
+  border:none;
+  text-align:left;
+  padding:14px;
+  border-radius:18px;
+  cursor:pointer;
+  color:var(--ink);
+  min-height:112px;
+  transition:.18s ease;
+  box-shadow:0 8px 24px rgba(42,67,110,.06);
+}
+.scenario:hover{transform:translateY(-2px)}
+.scenario input{display:none}
+.scenario:has(input:checked){
+  outline:3px solid var(--blue);
+  outline-offset:2px;
+}
+.scenario b{
+  display:block;
+  font-size:13px;
+  margin-bottom:6px;
+}
+.scenario span{
+  font-size:11px;
+  line-height:1.35;
+  color:#58657c;
+}
+.s1{background:var(--mint)}
+.s2{background:var(--peach)}
+.s3{background:var(--lav)}
+.s4{background:var(--yellow)}
+.s5{background:var(--pink)}
+.s6{background:var(--cyan)}
+
+.workspace{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,.94fr);
+  gap:20px;
+}
+.panel{
+  background:rgba(255,255,255,.96);
+  border:1px solid var(--line);
+  border-radius:24px;
+  box-shadow:var(--shadow);
+}
+.panel-head{
+  padding:22px 22px 0;
+}
+.panel-head h2{
+  margin:0;
+  font-size:20px;
+  letter-spacing:-.02em;
+}
+.panel-head p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.45;
+}
+.form{
+  padding:18px 22px 22px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.full{grid-column:1/-1}
+label.title{
+  display:block;
+  margin-bottom:7px;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  color:#536177;
+}
+input,select,textarea{
+  width:100%;
+  border:1px solid var(--line);
+  background:#fbfdff;
+  color:var(--ink);
+  border-radius:14px;
+  padding:12px 13px;
+  font:inherit;
+  outline:none;
+  transition:.2s;
+}
+textarea{min-height:92px;resize:vertical}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 4px rgba(53,109,243,.09)
+}
+.chips{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.chip{
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  padding:9px 11px;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+.chip input{display:none}
+.chip:has(input:checked){
+  background:var(--navy);
+  color:#fff;
+  border-color:var(--navy);
+}
+.mini-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:16px;
+}
+.mini{
+  border-radius:14px;
+  padding:11px;
+  font-size:11px;
+  line-height:1.4;
+  color:#4f5e73;
+}
+.mini b{display:block;color:var(--ink);margin-bottom:3px}
+.m1{background:#e8f7ee}
+.m2{background:#fff1e8}
+.m3{background:#f0edff}
+.m4{background:#e8f5ff}
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+button{
+  appearance:none;
+  border:none;
+  border-radius:14px;
+  padding:12px 16px;
+  font:inherit;
+  font-weight:900;
+  cursor:pointer;
+}
+.primary{background:var(--blue);color:#fff}
+.dark{background:var(--navy);color:#fff}
+.light{background:#edf2f8;color:var(--ink)}
+button:hover{transform:translateY(-1px)}
+.tip{
+  margin-top:15px;
+  padding:13px 14px;
+  border:1px dashed #b8c8df;
+  background:#f8fbff;
+  border-radius:14px;
+  font-size:12px;
+  line-height:1.55;
+  color:#5b6880;
+}
+.out-wrap{padding:18px 22px 22px}
+.out-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:12px;
+}
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 9px;
+  border-radius:999px;
+  background:#eafaf0;
+  color:#37654b;
+  border:1px solid #c9ebd5;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+pre{
+  margin:0;
+  min-height:650px;
+  max-height:790px;
+  overflow:auto;
+  white-space:pre-wrap;
+  word-break:break-word;
+  background:#111827;
+  color:#f8fafc;
+  border-radius:18px;
+  padding:18px;
+  font-size:13px;
+  line-height:1.62;
+}
+.checks{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:14px;
+}
+.check{
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px;
+  background:#fbfdff;
+  font-size:12px;
+  line-height:1.45;
+  color:#627087;
+}
+.check b{display:block;color:var(--ink);margin-bottom:3px}
+footer{
+  text-align:center;
+  color:#8190a4;
+  font-size:11px;
+  margin-top:20px;
+}
+@media(max-width:1050px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-card{max-width:520px}
+  .scenarios{grid-template-columns:repeat(3,1fr)}
+  .workspace{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .shell{padding:16px 12px 40px}
+  .hero{padding:22px;border-radius:22px}
+  .scenarios{grid-template-columns:repeat(2,1fr)}
+  .grid{grid-template-columns:1fr}
+  .full{grid-column:auto}
+  .mini-grid{grid-template-columns:1fr 1fr}
+  .checks{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="badge">pairwork that actually needs a partner</div>
+        <h1>Information Gap Factory</h1>
+        <p>
+          Конструктор настоящих Student A / Student B заданий: у каждого ученика есть только часть информации,
+          поэтому выполнить задачу без вопросов, уточнений и обмена данными невозможно.
+        </p>
+      </div>
+
+      <div class="hero-card">
+        <b>Как работает gap</b>
+        <div class="duo">
+          <div class="a">
+            <strong>A</strong>
+            <span>знает часть информации, но ему не хватает данных B</span>
+          </div>
+          <div class="b">
+            <strong>B</strong>
+            <span>знает другую часть и тоже вынужден спрашивать A</span>
+          </div>
+        </div>
+        <div class="arrow">A ⇄ questions ⇄ B → common goal</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="scenarios">
+    <label class="scenario s1">
+      <input name="scenario" type="radio" value="schedule" checked>
+      <b>Schedule Gap</b>
+      <span>Найти свободное время, восстановить расписание или договориться о встрече.</span>
+    </label>
+    <label class="scenario s2">
+      <input name="scenario" type="radio" value="investigation">
+      <b>Investigation</b>
+      <span>У каждого разные улики. Нужно совместно выяснить, что произошло.</span>
+    </label>
+    <label class="scenario s3">
+      <input name="scenario" type="radio" value="travel">
+      <b>Travel Planner</b>
+      <span>Разные данные о рейсах, отелях, маршрутах, бюджете и условиях.</span>
+    </label>
+    <label class="scenario s4">
+      <input name="scenario" type="radio" value="apartment">
+      <b>Find a Home</b>
+      <span>Сравнить варианты жилья при неполной информации у каждого партнёра.</span>
+    </label>
+    <label class="scenario s5">
+      <input name="scenario" type="radio" value="event">
+      <b>Plan an Event</b>
+      <span>Собрать единый план из разрозненных ограничений, пожеланий и ресурсов.</span>
+    </label>
+    <label class="scenario s6">
+      <input name="scenario" type="radio" value="mystery">
+      <b>Mystery Person</b>
+      <span>Угадать или идентифицировать человека по частичным описаниям и вопросам.</span>
+    </label>
+  </div>
+
+  <div class="workspace">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>1. Настройте задание</h2>
+        <p>Конструктор соберёт подробный промпт для генерации двух действительно взаимозависимых листов.</p>
+      </div>
+
+      <div class="form">
+        <div class="grid">
+          <div>
+            <label class="title" for="language">Изучаемый язык</label>
+            <select id="language">
+              <option>English</option>
+              <option>Deutsch</option>
+              <option>Français</option>
+              <option>Español</option>
+              <option>Italiano</option>
+              <option>Português</option>
+              <option>Русский как иностранный</option>
+              <option>中文 Chinese</option>
+              <option>日本語 Japanese</option>
+              <option>한국어 Korean</option>
+              <option>Другой язык</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="title" for="level">CEFR</label>
+            <select id="level">
+              <option>Pre-A1</option>
+              <option>A1</option>
+              <option selected>A2</option>
+              <option>B1</option>
+              <option>B2</option>
+              <option>C1</option>
+              <option>C2</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="title" for="age">Возраст</label>
+            <select id="age">
+              <option>6–8 лет</option>
+              <option>9–11 лет</option>
+              <option selected>12–14 лет</option>
+              <option>15–17 лет</option>
+              <option>18–25 лет</option>
+              <option>26+ лет</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="title" for="format">Формат</label>
+            <select id="format">
+              <option selected>Пара</option>
+              <option>Мини-группа 3–4</option>
+              <option>Онлайн-пара</option>
+              <option>1-to-1 с учителем как партнёром</option>
+            </select>
+          </div>
+
+          <div class="full">
+            <label class="title" for="topic">Тема</label>
+            <input id="topic" placeholder="Например: Travel, School timetable, City life, Jobs, Food…" />
+          </div>
+
+          <div class="full">
+            <label class="title" for="goal">Коммуникативная цель</label>
+            <input id="goal" placeholder="Например: ask for missing information, compare options, agree on one solution" />
+          </div>
+
+          <div class="full">
+            <label class="title" for="target">Целевая лексика / грамматика</label>
+            <textarea id="target" placeholder="Например: What time does...? / How much...? / comparative adjectives / there is-are / Past Simple"></textarea>
+          </div>
+
+          <div>
+            <label class="title" for="complexity">Сложность gap</label>
+            <select id="complexity">
+              <option>Лёгкий</option>
+              <option selected>Средний</option>
+              <option>Сложный</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="title" for="items">Объём данных</label>
+            <select id="items">
+              <option>6–8 элементов</option>
+              <option selected>9–12 элементов</option>
+              <option>13–16 элементов</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="title" for="support">Поддержка</label>
+            <select id="support">
+              <option>Высокая</option>
+              <option selected>Средняя</option>
+              <option>Минимальная</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="title" for="time">Время на задание</label>
+            <select id="time">
+              <option>5–7 минут</option>
+              <option selected>8–12 минут</option>
+              <option>15–20 минут</option>
+            </select>
+          </div>
+
+          <div class="full">
+            <label class="title">Что ученики должны делать</label>
+            <div class="chips">
+              <label class="chip"><input id="ask" type="checkbox" checked> Ask questions</label>
+              <label class="chip"><input id="clarify" type="checkbox" checked> Clarify</label>
+              <label class="chip"><input id="compare" type="checkbox" checked> Compare</label>
+              <label class="chip"><input id="negotiate" type="checkbox" checked> Negotiate</label>
+              <label class="chip"><input id="decide" type="checkbox" checked> Decide together</label>
+              <label class="chip"><input id="justify" type="checkbox"> Justify choice</label>
+            </div>
+          </div>
+
+          <div class="full">
+            <label class="title">Дополнительные элементы</label>
+            <div class="chips">
+              <label class="chip"><input id="useful" type="checkbox" checked> Useful language</label>
+              <label class="chip"><input id="teacher" type="checkbox" checked> Teacher notes</label>
+              <label class="chip"><input id="key" type="checkbox" checked> Answer key</label>
+              <label class="chip"><input id="twist" type="checkbox"> Plot twist</label>
+              <label class="chip"><input id="challenge" type="checkbox"> Challenge round</label>
+              <label class="chip"><input id="reflection" type="checkbox" checked> Reflection</label>
+            </div>
+          </div>
+
+          <div class="full">
+            <label class="title" for="context">Дополнительный контекст</label>
+            <textarea id="context" placeholder="Например: ученики стесняются задавать уточняющие вопросы; тема уже знакома; нужно повторить лексику прошлой недели."></textarea>
+          </div>
+        </div>
+
+        <div class="mini-grid">
+          <div class="mini m1"><b>Real gap</b>A и B не могут завершить задачу по отдельности.</div>
+          <div class="mini m2"><b>Equal power</b>У обоих есть важная уникальная информация.</div>
+          <div class="mini m3"><b>No reading aloud</b>Нельзя просто продиктовать весь лист партнёру.</div>
+          <div class="mini m4"><b>Shared goal</b>Финал требует общего решения или полного результата.</div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="buildPrompt()">Собрать промпт</button>
+          <button class="light" onclick="loadDemo()">Заполнить пример</button>
+          <button class="light" onclick="resetForm()">Сбросить</button>
+        </div>
+
+        <div class="tip">
+          <b>Главная проверка:</b> если Student A может выполнить всё задание, не разговаривая со Student B,
+          это не information gap. Поэтому промпт автоматически требует настоящей взаимозависимости данных.
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>2. Готовый промпт</h2>
+        <p>Скопируйте в ChatGPT, Claude или другую LLM.</p>
+      </div>
+
+      <div class="out-wrap">
+        <div class="out-top">
+          <div class="status">● mutual dependency check</div>
+        </div>
+
+        <pre id="output">Выберите сценарий и заполните параметры слева.</pre>
+
+        <div class="actions">
+          <button class="dark" onclick="copyPrompt()">Копировать</button>
+          <button class="light" onclick="downloadPrompt()">Скачать .txt</button>
+        </div>
+
+        <div class="checks">
+          <div class="check"><b>Student A ≠ Student B</b>Материалы действительно разные, а не дублирующие.</div>
+          <div class="check"><b>У обоих есть пробелы</b>Никто не получает всю необходимую информацию.</div>
+          <div class="check"><b>Коммуникация нужна</b>Без вопросов и обмена данными цель недостижима.</div>
+          <div class="check"><b>Финал общий</b>Пара должна восстановить, выбрать, решить или договориться.</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer>Information Gap Factory · standalone HTML · teacher-ready</footer>
+</div>
+
+<script>
+function checked(id){ return document.getElementById(id).checked; }
+function scenario(){ return document.querySelector('input[name="scenario"]:checked').value; }
+
+function scenarioRules(type){
+  const map = {
+    schedule: `SCHEDULE GAP
+Create two partially completed but complementary schedules.
+Both learners must have some appointments/events that the other learner does not know.
+The final goal should require reconstructing missing slots, finding a mutually possible time, or agreeing on a plan.
+Do not make one student's sheet a complete master schedule.`,
+
+    investigation: `INVESTIGATION GAP
+Give Student A and Student B different clues, witness details, times, objects, statements, or observations.
+No single clue should solve the mystery alone.
+The pair must exchange information, compare contradictions, and infer a final explanation.
+Avoid violent, disturbing, criminally graphic, or age-inappropriate scenarios.`,
+
+    travel: `TRAVEL PLANNER GAP
+Split information about transport, prices, times, hotel conditions, locations, activities, restrictions, and preferences.
+Each learner should know some details that materially affect the choice.
+The pair must ask for missing information and agree on one viable travel plan.
+Include at least one trade-off so the answer is not obvious from a single criterion.`,
+
+    apartment: `FIND A HOME GAP
+Create several housing options with different information split across A and B: price, size, location, transport, rules, facilities, pros/cons.
+Neither student should have enough information to choose alone.
+The final task should require comparing criteria and agreeing on the best option for a defined person/profile.
+Keep financial details fictional and simple.`,
+
+    event: `PLAN AN EVENT GAP
+Split constraints, preferences, availability, venue information, budget limits, food/activity options, and logistics across the two learners.
+Both students must contribute unique constraints.
+The pair should negotiate and produce one final event plan that satisfies as many conditions as possible.`,
+
+    mystery: `MYSTERY PERSON GAP
+Give each learner different attributes, facts, habits, preferences, schedule details, or clues about several fictional people.
+The students must ask questions to identify the correct person or match people to profiles.
+Do not make the answer solvable through one obvious clue.
+Avoid sensitive identity traits; use neutral, age-appropriate information.`
+  };
+  return map[type] || "";
+}
+
+function levelRules(level){
+  const map = {
+    "Pre-A1":"Use extremely short, concrete language. Prefer visualisable information, simple either/or questions, names, numbers, colours, times and familiar nouns. Provide strong question frames.",
+    "A1":"Use short predictable question patterns, familiar vocabulary, simple present/past/time expressions, and clear tables or cards.",
+    "A2":"Use everyday questions, simple comparisons, reasons, schedules, prices, preferences, past/future references and short clarification phrases.",
+    "B1":"Allow flexible questioning, follow-up, reasons, trade-offs, problem solving, and moderate information density.",
+    "B2":"Include negotiation, nuanced comparison, constraints, priorities and more spontaneous follow-up language.",
+    "C1":"Use complex but natural constraints, subtle trade-offs, inference and negotiation. Avoid artificial exam-like wording unless requested.",
+    "C2":"Use highly natural, efficient interaction with nuanced inference, negotiation, ambiguity and strategic questioning."
+  };
+  return map[level] || "";
+}
+
+function ageRules(age){
+  if(["6–8 лет","9–11 лет"].includes(age)){
+    return "Use child-safe, concrete, playful contexts. Avoid adult logistics, renting contracts, dating, politics, alcohol, money stress, or sensitive family situations.";
+  }
+  if(["12–14 лет","15–17 лет"].includes(age)){
+    return "Use age-appropriate teen contexts such as school, hobbies, trips, clubs, fictional mysteries, events and everyday choices. Avoid intrusive personal content.";
+  }
+  return "Use adult-appropriate but non-intrusive contexts. Avoid requiring sensitive personal disclosure.";
+}
+
+function buildPrompt(){
+  const language=document.getElementById("language").value;
+  const level=document.getElementById("level").value;
+  const age=document.getElementById("age").value;
+  const format=document.getElementById("format").value;
+  const topic=document.getElementById("topic").value.trim() || "[topic not specified]";
+  const goal=document.getElementById("goal").value.trim() || "[communicative goal not specified]";
+  const target=document.getElementById("target").value.trim() || "[target language not specified]";
+  const complexity=document.getElementById("complexity").value;
+  const items=document.getElementById("items").value;
+  const support=document.getElementById("support").value;
+  const time=document.getElementById("time").value;
+  const context=document.getElementById("context").value.trim() || "[no extra context]";
+  const type=scenario();
+
+  const interaction=[];
+  if(checked("ask"))interaction.push("ask for missing information");
+  if(checked("clarify"))interaction.push("clarify and confirm");
+  if(checked("compare"))interaction.push("compare information/options");
+  if(checked("negotiate"))interaction.push("negotiate");
+  if(checked("decide"))interaction.push("make a shared decision");
+  if(checked("justify"))interaction.push("justify choices");
+
+  const extras=[];
+  if(checked("useful"))extras.push("Add a concise Useful Language box for Student A and Student B with question stems, clarification phrases and decision-making language.");
+  if(checked("teacher"))extras.push("Add brief teacher instructions: setup, timing, whether students may show each other the sheets, and how to monitor.");
+  if(checked("key"))extras.push("Provide a complete teacher key with all missing information and the intended final outcome.");
+  if(checked("twist"))extras.push("Add one optional late-stage information twist that forces the pair to revise their first decision.");
+  if(checked("challenge"))extras.push("Add a challenge round where students must solve a second problem using the information they have already collected.");
+  if(checked("reflection"))extras.push("Finish with a very short reflection on which questions or phrases helped the interaction most.");
+
+  const prompt = `ROLE
+You are an expert language teacher, CEFR-aware task designer and communicative materials writer. You specialise in true information-gap activities where learners genuinely need each other to complete the task.
+
+TASK
+Create a complete Student A / Student B Information Gap activity.
+
+TEACHING CONTEXT
+- Target language: ${language}
+- CEFR level: ${level}
+- Learner age: ${age}
+- Class format: ${format}
+- Information-gap scenario: ${type}
+- Topic: ${topic}
+- Communicative goal: ${goal}
+- Target vocabulary / grammar / functional language: ${target}
+- Gap complexity: ${complexity}
+- Information volume: ${items}
+- Learner support: ${support}
+- Target task time: ${time}
+- Required interaction: ${interaction.length ? interaction.join(", ") : "ask for missing information and complete a shared goal"}
+- Extra context: ${context}
+
+SCENARIO DESIGN
+${scenarioRules(type)}
+
+CEFR CONTROL
+${levelRules(level)}
+Do not use language clearly above ${level} unless it appears in the target language supplied by the teacher.
+
+AGE CONTROL
+${ageRules(age)}
+
+CORE INFORMATION-GAP RULES
+1. Student A and Student B must receive genuinely different information.
+2. BOTH learners must have important information the other learner needs.
+3. Neither learner may be able to complete the task independently.
+4. Do not create a fake gap where one learner merely reads information aloud and the other copies it.
+5. Split information strategically, not mechanically every second line.
+6. Each learner should have some complete information, some missing information, and at least one reason to ask a follow-up question.
+7. Build at least 2–3 points where clarification or confirmation is useful.
+8. The task must end in a shared outcome: reconstruct, identify, select, plan, solve, match, rank, schedule, or agree.
+9. Do not reveal the answer on the student sheets.
+10. Keep both roles equally important.
+11. Avoid one student doing all the questioning while the other only answers.
+12. Make the interaction require meaning, not only reading isolated words or numbers.
+13. If tables are used, ensure missing cells are distributed in a non-obvious pattern.
+14. Avoid predictable answer positions or one obviously superior option.
+15. If multiple options are compared, use plausible distractors and real trade-offs.
+
+INTERACTION DESIGN
+The students should naturally need to:
+${interaction.length ? interaction.map(x=>"- "+x).join("\n") : "- ask for missing information\n- clarify\n- compare\n- reach a shared decision"}
+
+STUDENT A SHEET
+Create a complete printable/digital-ready Student A section containing:
+- short situation/context;
+- clear goal;
+- Student A's unique information;
+- visible gaps that must be filled through speaking;
+- space to record information from Student B;
+- final decision/result area;
+- support only at the selected level: ${support}.
+
+STUDENT B SHEET
+Create a parallel Student B section with:
+- the same overall mission but different data;
+- equally important unique information;
+- different gaps;
+- space to record answers;
+- the same final shared goal.
+Do not simply mirror Student A line by line.
+
+USEFUL LANGUAGE
+If support is Medium or High, include CEFR-appropriate functional language for:
+- asking for missing details;
+- checking understanding;
+- asking a follow-up;
+- correcting information politely;
+- comparing;
+- agreeing/disagreeing;
+- reaching a decision.
+
+OUTPUT FORMAT
+Return exactly these sections:
+A. Teacher overview
+B. Student A material
+C. Student B material
+D. Optional Useful Language
+E. Shared final task
+F. Teacher key
+G. Quick quality-control check
+
+OPTIONAL REQUIREMENTS
+${extras.length ? extras.map(x=>"- "+x).join("\n") : "- No extra blocks selected."}
+
+QUALITY-CONTROL CHECK
+Before answering, silently verify:
+- Student A cannot finish without Student B;
+- Student B cannot finish without Student A;
+- both roles have comparable information power;
+- the pair must ask meaningful questions;
+- the final task depends on combining information;
+- the target language is genuinely useful for completing the task;
+- the answer cannot be guessed from layout, length, order or one obvious clue;
+- the activity is age-appropriate;
+- the activity is immediately usable without teacher rewriting.`;
+
+  document.getElementById("output").textContent=prompt;
+
+  try{
+    localStorage.setItem("infoGapFactoryState",JSON.stringify({
+      type,language,level,age,format,
+      topic:document.getElementById("topic").value,
+      goal:document.getElementById("goal").value,
+      target:document.getElementById("target").value,
+      complexity,items,support,time,
+      context:document.getElementById("context").value,
+      ask:checked("ask"),clarify:checked("clarify"),compare:checked("compare"),
+      negotiate:checked("negotiate"),decide:checked("decide"),justify:checked("justify"),
+      useful:checked("useful"),teacher:checked("teacher"),key:checked("key"),
+      twist:checked("twist"),challenge:checked("challenge"),reflection:checked("reflection")
+    }));
+  }catch(e){}
+}
+
+function copyPrompt(){
+  const text=document.getElementById("output").textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=[...document.querySelectorAll("button")].find(x=>x.textContent.includes("Копировать"));
+    const old=btn.textContent;
+    btn.textContent="Скопировано ✓";
+    setTimeout(()=>btn.textContent=old,1400);
+  });
+}
+
+function downloadPrompt(){
+  const text=document.getElementById("output").textContent;
+  const blob=new Blob([text],{type:"text/plain;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="information-gap-factory-prompt.txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+
+function loadDemo(){
+  document.querySelector('input[name="scenario"][value="travel"]').checked=true;
+  document.getElementById("language").value="English";
+  document.getElementById("level").value="A2";
+  document.getElementById("age").value="12–14 лет";
+  document.getElementById("format").value="Пара";
+  document.getElementById("topic").value="Planning a weekend trip";
+  document.getElementById("goal").value="ask for missing information, compare options and agree on one trip";
+  document.getElementById("target").value="How much is...? What time does...? cheaper than, faster than, I'd rather, Why don't we...?";
+  document.getElementById("complexity").value="Средний";
+  document.getElementById("items").value="9–12 элементов";
+  document.getElementById("support").value="Средняя";
+  document.getElementById("time").value="8–12 минут";
+  document.getElementById("context").value="Students know travel vocabulary but need more practice asking follow-up questions instead of reading information aloud.";
+  ["ask","clarify","compare","negotiate","decide","useful","teacher","key","reflection"].forEach(id=>document.getElementById(id).checked=true);
+  document.getElementById("justify").checked=true;
+  document.getElementById("twist").checked=false;
+  document.getElementById("challenge").checked=false;
+  buildPrompt();
+}
+
+function resetForm(){
+  document.querySelector('input[name="scenario"][value="schedule"]').checked=true;
+  document.getElementById("language").value="English";
+  document.getElementById("level").value="A2";
+  document.getElementById("age").value="12–14 лет";
+  document.getElementById("format").value="Пара";
+  document.getElementById("topic").value="";
+  document.getElementById("goal").value="";
+  document.getElementById("target").value="";
+  document.getElementById("complexity").value="Средний";
+  document.getElementById("items").value="9–12 элементов";
+  document.getElementById("support").value="Средняя";
+  document.getElementById("time").value="8–12 минут";
+  document.getElementById("context").value="";
+  ["ask","clarify","compare","negotiate","decide","useful","teacher","key","reflection"].forEach(id=>document.getElementById(id).checked=true);
+  document.getElementById("justify").checked=false;
+  document.getElementById("twist").checked=false;
+  document.getElementById("challenge").checked=false;
+  document.getElementById("output").textContent="Выберите сценарий и заполните параметры слева.";
+  try{localStorage.removeItem("infoGapFactoryState")}catch(e){}
+}
+</script>
+</body>
+</html>
